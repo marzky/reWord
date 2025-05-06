@@ -322,6 +322,9 @@ border-bottom-left-radius: 20px;</string>
        </property>
        <item>
         <widget class="QStackedWidget" name="pages">
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="leftMargin">
@@ -412,7 +415,162 @@ QScrollBar::handle:horizontal {
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page_2"/>
+         <widget class="QWidget" name="newSetPage">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="topMargin">
+            <number>40</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: white;</string>
+             </property>
+             <property name="text">
+              <string>New set name:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="newSetEdit">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #1d1d1d;
+color: white;
+border-radius: 7px;
+padding-left: 7px;
+font: 20px &quot;Funnel Sans Light&quot;;</string>
+             </property>
+             <property name="maxLength">
+              <number>30</number>
+             </property>
+             <property name="placeholderText">
+              <string>Maximum length: 30 characters.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: white;</string>
+             </property>
+             <property name="text">
+              <string>Set tag:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="tagEdit">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #1d1d1d;
+color: white;
+border-radius: 7px;
+padding-left: 7px;
+font: 20px &quot;Funnel Sans Light&quot;;</string>
+             </property>
+             <property name="maxLength">
+              <number>20</number>
+             </property>
+             <property name="placeholderText">
+              <string>Maximum length: 20 characters.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="createSetBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+             </property>
+             <property name="text">
+              <string>Create set</string>
+             </property>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignBottom">
+            <widget class="QPushButton" name="cancelBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+             </property>
+             <property name="text">
+              <string>Cancel</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>

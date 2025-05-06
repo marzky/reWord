@@ -1,4 +1,4 @@
-import json, os, sys
+import json, os, sys, random
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import Qt
 import ctypes
@@ -30,13 +30,27 @@ class reWord(QtWidgets.QMainWindow):
 
         self.relayout_widgets()
 
-        self.newSetBtn.clicked.connect(lambda: (self.add_card(), self.relayout_widgets()))
+        self.pages.setCurrentWidget(self.mainPage)
+        self.newSetBtn.clicked.connect(lambda: (self.new_set(), self.relayout_widgets()))
+        self.mainPageBtn.clicked.connect(lambda: (self.pages.setCurrentWidget(self.mainPage), self.relayout_widgets()))
+        self.createSetBtn.clicked.connect(self.create_set)
 
-    def add_card(self):
+    def new_set(self):
+        self.newSetEdit.clear()
+        self.tagEdit.clear()
+        self.pages.setCurrentWidget(self.newSetPage)
+
+
+    def create_set(self):
+        set_name = self.newSetEdit.text()
+        tag_name = self.tagEdit.text()
+
         # Maximum size = 30 chars
-        w = WCard("Food", "🫦 Norwegian")
+        w = WCard(set_name, tag_name, parent=self)
         self.widgets.append(w)
-        
+        self.pages.setCurrentWidget(self.mainPage)
+        self.relayout_widgets()
+
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -70,13 +84,60 @@ class reWord(QtWidgets.QMainWindow):
         self.mainPageGrid.setColumnStretch(columns, 1)
         self.mainPageGrid.setRowStretch(rows+1, 1)
 
+    def remove_card(self, card_widget):
+        box = QtWidgets.QMessageBox(self)
+        box.setWindowTitle("Delete the card?")
+        hwnd = int(self.winId())
+        set_title_bar_color(hwnd, 0x00050505)
+        box.setText("Do you really want to delete the card?")
+        box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
+        box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+        box.setStyleSheet("""
+            QMessageBox {
+                background-color: #111;
+                border: none;
+            }
+            QLabel {
+                color: white;
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #222;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #FF2C55;
+                color: black;
+            }
+        """)
+        answer = box.exec_()
+        if answer == QtWidgets.QMessageBox.Yes:
+            
+            self.widgets.remove(card_widget)
+            card_widget.setParent(None)
+            self.relayout_widgets()
+
 
 class WCard(QtWidgets.QWidget):
-    def __init__(self, title: str, tag: str):
-        super().__init__()
+    def __init__(self, title: str, tag: str, parent=None):
+        super().__init__(parent)
+        self.owner = parent
         self.setFixedSize(185, 185)
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
-        self.setStyleSheet("background-color: #1b1b1b; border-radius: 7px; border-color: #FF2C55; border: 1.5px solid #FF2C55;")
+        self.setStyleSheet("""QWidget{
+                           background-color: #1b1b1b; 
+                           border-radius: 7px; 
+                           border: 1.5px solid #FF2C55;
+                           }
+
+                           QWidget:hover {
+                           background-color: #2D2D2D;
+                           }
+                           """)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.open_context_menu)
 
         vbox = QtWidgets.QVBoxLayout(self)
         vbox.setContentsMargins(12,12,12,12)
@@ -84,18 +145,46 @@ class WCard(QtWidgets.QWidget):
 
         title_lbl = QtWidgets.QLabel(title, self)
         title_lbl.setWordWrap(True)
-        title_lbl.setStyleSheet("color: white; font-size: 28px; border: none;")
+        title_lbl.setStyleSheet("background-color: transparent; color: white; font-size: 28px; border: none;")
         vbox.addWidget(title_lbl)
 
         tag_lbl = QtWidgets.QLabel(tag, self)
-        tag_lbl.setStyleSheet("color: #797979; font-size: 14px; border: none;")
+        tag_lbl.setStyleSheet("background-color: transparent; color: #797979; font-size: 14px; border: none;")
         vbox.addWidget(tag_lbl)
 
-        word_counter = "0 word pairs" # CHANGE ME LATER
+        random_ch = ['0 word pairs', '21 word pairs', '13 word pairs', '312 word pairs']
+        word_counter = random.choice(random_ch) # CHANGE ME LATER
         word_counter_lbl = QtWidgets.QLabel(word_counter, self)
         word_counter_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignBottom)
-        word_counter_lbl.setStyleSheet("color: #797979; font-size: 14px; border: none;")
+        word_counter_lbl.setStyleSheet("background-color: transparent; color: #797979; font-size: 14px; border: none;")
         vbox.addWidget(word_counter_lbl)
+
+    def open_context_menu(self, position):
+        menu = QtWidgets.QMenu(self)
+
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: #050505;
+                color: white;
+                border: none;
+            }
+            QMenu::item {
+                padding: 6px 20px;
+                background-color: transparent;
+            }
+            QMenu::item:selected {
+                background-color: #C41E3D;
+                color: black;
+            }
+        """)
+
+        action_delete = menu.addAction("❌ Delete")
+
+        action = menu.exec_(self.mapToGlobal(position))
+
+        if action == action_delete:
+            if self.owner:
+                self.owner.remove_card(self)
 
         
 
