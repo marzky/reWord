@@ -1,8 +1,10 @@
 import json, os, sys, random
 from PyQt5 import QtWidgets, uic, QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRegExp
 import ctypes
 from ctypes import wintypes
+from PyQt5.QtGui import QRegExpValidator
+
 
 dwmapi = ctypes.windll.dwmapi
 DWMWA_CAPTION_COLOR = 35
@@ -29,20 +31,32 @@ class reWord(QtWidgets.QMainWindow):
         self.widgets = []
 
         self.relayout_widgets()
+        
+        regexp = QRegExp(r"[A-Za-zА-Яа-я0-9 _-]+")
+        validator = QRegExpValidator(regexp)
 
         self.pages.setCurrentWidget(self.mainPage)
         self.newSetBtn.clicked.connect(lambda: (self.new_set(), self.relayout_widgets()))
         self.mainPageBtn.clicked.connect(lambda: (self.pages.setCurrentWidget(self.mainPage), self.relayout_widgets()))
+
+        self.newSetEdit.setValidator(validator)
+        self.tagEdit.setValidator(validator)
+        self.newSetEdit.returnPressed.connect(lambda: self.tagEdit.setFocus())
+        self.tagEdit.returnPressed.connect(self.createSetBtn.click)
         self.createSetBtn.clicked.connect(self.create_set)
 
     def new_set(self):
         self.newSetEdit.clear()
         self.tagEdit.clear()
         self.pages.setCurrentWidget(self.newSetPage)
+        self.newSetEdit.setFocus()
 
 
     def create_set(self):
         set_name = self.newSetEdit.text()
+        if not set_name:
+            self.create_warning_box("Could not create a set", "Title shouldn't be empty.")
+            return
         tag_name = self.tagEdit.text()
 
         # Maximum size = 30 chars
@@ -51,6 +65,33 @@ class reWord(QtWidgets.QMainWindow):
         self.pages.setCurrentWidget(self.mainPage)
         self.relayout_widgets()
 
+    def create_warning_box(self, title, desc):
+        box = QtWidgets.QMessageBox(self)
+        box.setWindowTitle(title)
+        box.setText(desc)
+        box.setIcon(QtWidgets.QMessageBox.Warning)
+        box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        box.setStyleSheet("""
+            QMessageBox {
+                background-color: #111;
+                border: none;
+            }
+            QLabel {
+                color: white;
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #222;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #FF2C55;
+                color: black;
+            }
+        """)
+        box.exec_()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -87,8 +128,6 @@ class reWord(QtWidgets.QMainWindow):
     def remove_card(self, card_widget):
         box = QtWidgets.QMessageBox(self)
         box.setWindowTitle("Delete the card?")
-        hwnd = int(self.winId())
-        set_title_bar_color(hwnd, 0x00050505)
         box.setText("Do you really want to delete the card?")
         box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
         box.setDefaultButton(QtWidgets.QMessageBox.Cancel)

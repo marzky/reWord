@@ -432,7 +432,7 @@ QScrollBar::handle:horizontal {
               <string notr="true">color: white;</string>
              </property>
              <property name="text">
-              <string>New set name:</string>
+              <string>New set title:</string>
              </property>
             </widget>
            </item>
