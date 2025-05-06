@@ -64,7 +64,8 @@ class reWord(QtWidgets.QMainWindow):
                 title = data.get("title", "")
                 tag   = data.get("tag", "")
                 # Только если в файле лежат валидные поля
-                if title and tag:
+                if title:
+                    tag = tag or "General"
                     card = WCard(title, tag, parent=self)
                     self.widgets.append(card)
             except Exception as e:
@@ -83,6 +84,8 @@ class reWord(QtWidgets.QMainWindow):
             self.create_warning_box("Could not create a set", "Title shouldn't be empty.")
             return
         tag_name = self.tagEdit.text()
+        if not tag_name:
+            tag_name = "General"
 
         if not Files.exists(set_name):
             Files.create(f"{set_name}")
