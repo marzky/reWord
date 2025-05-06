@@ -1,9 +1,9 @@
-import json, os, sys, random
+import json, os, sys, random, glob
 from PyQt5 import QtWidgets, uic, QtCore
-from PyQt5.QtCore import Qt, QRegExp
+from PyQt5.QtCore import Qt, QRegExp, QTimer
 import ctypes
 from ctypes import wintypes
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtGui import QRegExpValidator, QKeySequence
 
 
 dwmapi = ctypes.windll.dwmapi
@@ -30,13 +30,17 @@ class reWord(QtWidgets.QMainWindow):
         self.widget_height = 185
         self.widgets = []
 
-        self.relayout_widgets()
-        
+        self.load_all_sets()
+
         regexp = QRegExp(r"[A-Za-zА-Яа-я0-9 _-]+")
         validator = QRegExpValidator(regexp)
 
+        shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+N"), self)
+        shortcut.activated.connect(self.new_set)
+
         self.pages.setCurrentWidget(self.mainPage)
         self.newSetBtn.clicked.connect(lambda: (self.new_set(), self.relayout_widgets()))
+        self.cancelBtn.clicked.connect(lambda: self.pages.setCurrentWidget(self.mainPage))
         self.mainPageBtn.clicked.connect(lambda: (self.pages.setCurrentWidget(self.mainPage), self.relayout_widgets()))
 
         self.newSetEdit.setValidator(validator)
@@ -44,6 +48,27 @@ class reWord(QtWidgets.QMainWindow):
         self.newSetEdit.returnPressed.connect(lambda: self.tagEdit.setFocus())
         self.tagEdit.returnPressed.connect(self.createSetBtn.click)
         self.createSetBtn.clicked.connect(self.create_set)
+
+        QTimer.singleShot(0, self.relayout_widgets)
+
+    def load_all_sets(self):
+        cards_dir = os.path.join(os.getcwd(), "cards")
+        # на всякий случай создаём папку, если её нет
+        os.makedirs(cards_dir, exist_ok=True)
+
+        # Проходим по всем *.json
+        for path in glob.glob(os.path.join(cards_dir, "*.json")):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                title = data.get("title", "")
+                tag   = data.get("tag", "")
+                # Только если в файле лежат валидные поля
+                if title and tag:
+                    card = WCard(title, tag, parent=self)
+                    self.widgets.append(card)
+            except Exception as e:
+                print(f"Could not load {path!r}: {e}")
 
     def new_set(self):
         self.newSetEdit.clear()
@@ -59,11 +84,23 @@ class reWord(QtWidgets.QMainWindow):
             return
         tag_name = self.tagEdit.text()
 
-        # Maximum size = 30 chars
-        w = WCard(set_name, tag_name, parent=self)
-        self.widgets.append(w)
-        self.pages.setCurrentWidget(self.mainPage)
-        self.relayout_widgets()
+        if not Files.exists(set_name):
+            Files.create(f"{set_name}")
+            data = {
+                "title": set_name,
+                "tag": tag_name,
+                "words": []
+                }
+            Files.record(set_name, data)
+
+            # Maximum size = 30 chars
+            w = WCard(set_name, tag_name, parent=self)
+            self.widgets.append(w)
+            self.pages.setCurrentWidget(self.mainPage)
+            self.relayout_widgets()
+        else:
+            self.create_warning_box("Could not create a set", "Set title is already in Cards directory. Please, change the title.")
+            return
 
     def create_warning_box(self, title, desc):
         box = QtWidgets.QMessageBox(self)
@@ -128,7 +165,7 @@ class reWord(QtWidgets.QMainWindow):
     def remove_card(self, card_widget):
         box = QtWidgets.QMessageBox(self)
         box.setWindowTitle("Delete the card?")
-        box.setText("Do you really want to delete the card?")
+        box.setText(f"Do you really want to delete the card '{card_widget.title_lbl.text()}'?")
         box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
         box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
         box.setStyleSheet("""
@@ -153,10 +190,10 @@ class reWord(QtWidgets.QMainWindow):
         """)
         answer = box.exec_()
         if answer == QtWidgets.QMessageBox.Yes:
-            
             self.widgets.remove(card_widget)
             card_widget.setParent(None)
             self.relayout_widgets()
+            Files.delete(card_widget.title_lbl.text())
 
 
 class WCard(QtWidgets.QWidget):
@@ -182,14 +219,14 @@ class WCard(QtWidgets.QWidget):
         vbox.setContentsMargins(12,12,12,12)
         vbox.setSpacing(8)
 
-        title_lbl = QtWidgets.QLabel(title, self)
-        title_lbl.setWordWrap(True)
-        title_lbl.setStyleSheet("background-color: transparent; color: white; font-size: 28px; border: none;")
-        vbox.addWidget(title_lbl)
+        self.title_lbl = QtWidgets.QLabel(title, self)
+        self.title_lbl.setWordWrap(True)
+        self.title_lbl.setStyleSheet("background-color: transparent; color: white; font-size: 28px; border: none;")
+        vbox.addWidget(self.title_lbl)
 
-        tag_lbl = QtWidgets.QLabel(tag, self)
-        tag_lbl.setStyleSheet("background-color: transparent; color: #797979; font-size: 14px; border: none;")
-        vbox.addWidget(tag_lbl)
+        self.tag_lbl = QtWidgets.QLabel(tag, self)
+        self.tag_lbl.setStyleSheet("background-color: transparent; color: #797979; font-size: 14px; border: none;")
+        vbox.addWidget(self.tag_lbl)
 
         random_ch = ['0 word pairs', '21 word pairs', '13 word pairs', '312 word pairs']
         word_counter = random.choice(random_ch) # CHANGE ME LATER
@@ -228,16 +265,34 @@ class WCard(QtWidgets.QWidget):
         
 
 class Files:
-    def create(name):
-        open(name, "w", encoding="utf-8").close()
+    def create(name, folder=None):
+        if not folder:
+            folder = "cards"
+        filename = f"{name}.json"
+        cards_dir = os.path.join(os.getcwd(), folder)
+        os.makedirs(cards_dir, exist_ok=True)
+        filepath = os.path.join(cards_dir, filename)
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump({}, f, indent=4, ensure_ascii=False)
 
 
-    def delete(name):
-        if os.path.exists(name):
-            os.remove(name)
+    @staticmethod
+    def delete(name, folder="cards"):
+        filename = f"{name}.json"
+        cards_dir = os.path.join(os.getcwd(), folder)
+        filepath = os.path.join(cards_dir, filename)
+
+        if os.path.exists(filepath):
+            os.remove(filepath)
         else:
-            # Later will be logged
-            print(f"Could not delete '{name}': file isn't found.")
+            print(f"Could not delete {filepath!r}: file isn't found.")
+
+    def exists(name: str, folder: str = "cards"):
+        filename = name if name.lower().endswith(".json") else f"{name}.json"
+        cards_dir = os.path.join(os.getcwd(), folder)
+        filepath = os.path.join(cards_dir, filename)
+        return os.path.isfile(filepath)
 
 
     def read(name):
@@ -246,9 +301,14 @@ class Files:
             return data
         
 
-    def record(name, data):
-        with open(name, "w", encoding="utf-8") as file:
-            json.dump(data, file, ensure_ascii=False, indent=2)
+    def record(name, data, folder="cards"):
+        filename = f"{name}.json"
+        cards_dir = os.path.join(os.getcwd(), folder)
+        filepath = os.path.join(cards_dir, filename)
+
+        if os.path.exists(filepath):
+            with open(filepath, "w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=2)
 
 
     def get_all_ids(file):

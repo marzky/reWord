@@ -323,7 +323,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>1</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -571,6 +571,7 @@ background-color: #1B1B1B;
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="setEditor"/>
         </widget>
        </item>
       </layout>
