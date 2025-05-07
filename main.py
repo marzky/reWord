@@ -207,7 +207,7 @@ class reWord(QtWidgets.QMainWindow):
     def remove_card(self, card_widget):
         box = QtWidgets.QMessageBox(self)
         box.setWindowTitle("Delete the card?")
-        box.setText(f"Do you really want to delete the card '{card_widget.title_lbl.text()}'?")
+        box.setText(f"Do you really want to delete the card '{card_widget.title_lbl.text()}'?\nAll the information about the card and .json file will be deleted too.")
         box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
         box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
         box.setStyleSheet("""
