@@ -2,6 +2,7 @@ import json, os, sys, random, glob
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import Qt, QRegExp, QTimer
 import ctypes
+from datetime import datetime
 from ctypes import wintypes
 from PyQt5.QtGui import QRegExpValidator, QKeySequence
 
@@ -15,7 +16,6 @@ def set_title_bar_color(hwnd, color):
     color = wintypes.DWORD(color)
     hwnd = wintypes.HWND(hwnd)
     dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ctypes.byref(color), ctypes.sizeof(color))
-
 
 class reWord(QtWidgets.QMainWindow):
     def __init__(self):
@@ -31,6 +31,9 @@ class reWord(QtWidgets.QMainWindow):
         self.widgets = []
 
         self.load_all_sets()
+
+        self.filtering_mode = 'Date' # 'date', 'title', 'tag', 'group'
+        self.sort_order = 'asc' # 'asc', 'desc'
 
         regexp = QRegExp(r"[A-Za-zА-Яа-я0-9 _-]+")
         validator = QRegExpValidator(regexp)
@@ -49,7 +52,13 @@ class reWord(QtWidgets.QMainWindow):
         self.tagEdit.returnPressed.connect(self.createSetBtn.click)
         self.createSetBtn.clicked.connect(self.create_set)
 
-        QTimer.singleShot(0, self.relayout_widgets)
+        self.filter_modes = ['Date', 'Title', 'Tag', 'Group']
+        self.filterBox.addItems(self.filter_modes)
+        self.filterBox.currentIndexChanged[int].connect(self.on_filter_changed)
+        self.ascBtn.clicked.connect(lambda: self.on_sort_order_changed("asc"))
+        self.descBtn.clicked.connect(lambda: self.on_sort_order_changed("desc"))
+ 
+        QTimer.singleShot(0, self.filtering_widgets)
 
     def load_all_sets(self):
         cards_dir = os.path.join(os.getcwd(), "cards")
@@ -77,6 +86,15 @@ class reWord(QtWidgets.QMainWindow):
         self.pages.setCurrentWidget(self.newSetPage)
         self.newSetEdit.setFocus()
 
+    def on_filter_changed(self, index: int):
+        if 0 <= index < len(self.filter_modes):
+            self.filtering_mode = self.filter_modes[index]
+        self.filtering_widgets()
+
+    def on_sort_order_changed(self, order):
+        self.sort_order = order
+        self.filtering_widgets()
+
 
     def create_set(self):
         set_name = self.newSetEdit.text()
@@ -98,7 +116,7 @@ class reWord(QtWidgets.QMainWindow):
 
             # Maximum size = 30 chars
             w = WCard(set_name, tag_name, parent=self)
-            self.widgets.append(w)
+            self.widgets.insert(0, w)
             self.pages.setCurrentWidget(self.mainPage)
             self.relayout_widgets()
         else:
@@ -135,6 +153,27 @@ class reWord(QtWidgets.QMainWindow):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self.relayout_widgets()
+
+    def filtering_widgets(self):
+        if self.filtering_mode == 'Title':
+            self.widgets.sort(
+                key=lambda w: w.title_lbl.text().lower(),
+                reverse=(self.sort_order == 'desc')
+            )
+        elif self.filtering_mode == 'Date':
+            self.widgets.sort(
+                key=lambda w: Files.last_modified(w.title_lbl.text()),
+                reverse=(self.sort_order == 'asc')  
+            )
+        elif self.filtering_mode == 'Tag':
+            self.widgets.sort(
+                key=lambda w: w.tag_lbl.text().lower(),
+                reverse=(self.sort_order == 'desc')
+            )
+        else:
+            print("Not implemented")
+
         self.relayout_widgets()
         
     def relayout_widgets(self):
@@ -279,6 +318,16 @@ class Files:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump({}, f, indent=4, ensure_ascii=False)
 
+    @staticmethod
+    def last_modified(name: str, folder: str = 'cards') -> float:
+        filename = name if name.lower().endswith('.json') else f"{name}.json"
+        filepath = os.path.join(os.getcwd(), folder, filename)
+        return os.path.getmtime(filepath)
+    
+    @staticmethod
+    def last_modified_dt(name: str, folder: str = 'cards') -> datetime:
+        ts = Files.last_modified(name, folder)
+        return datetime.fromtimestamp(ts)
 
     @staticmethod
     def delete(name, folder="cards"):
