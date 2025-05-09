@@ -74,7 +74,7 @@ font: 20px &quot;Funnel Sans&quot;;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
-        <number>20</number>
+        <number>10</number>
        </property>
        <property name="topMargin">
         <number>40</number>
@@ -181,15 +181,15 @@ background-color: #1B1B1B;
 }</string>
          </property>
          <property name="text">
-          <string>New group</string>
+          <string>Combined test</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_4">
+        <widget class="QPushButton" name="pushButton_3">
          <property name="minimumSize">
           <size>
-           <width>160</width>
+           <width>0</width>
            <height>40</height>
           </size>
          </property>
@@ -210,36 +210,7 @@ background-color: #1B1B1B;
 }</string>
          </property>
          <property name="text">
-          <string>Placeholder</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_5">
-         <property name="minimumSize">
-          <size>
-           <width>160</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton{
-background-color: #1B1B1B;
-border-radius: 7px;
-color: white;
-font: 20px &quot;Funnel Sans Light&quot;;
-}
-
-QPushButton::hover{
-background-color: #2D2D2D;
-}
-
-QPushButton::pressed{
-background-color: #1B1B1B;
-}</string>
-         </property>
-         <property name="text">
-          <string>Placeholder</string>
+          <string>Games</string>
          </property>
         </widget>
        </item>
@@ -258,6 +229,35 @@ background-color: #1B1B1B;
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+         </property>
+         <property name="text">
+          <string>Import</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="settingsBtn">
@@ -323,7 +323,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -385,8 +385,8 @@ QScrollBar::handle:horizontal {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>596</width>
-                <height>600</height>
+                <width>420</width>
+                <height>42</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -876,6 +876,233 @@ background-color: #1B1B1B;
               <number>0</number>
              </property>
             </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="wtView">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <layout class="QVBoxLayout" name="wtViewLayout">
+             <property name="topMargin">
+              <number>35</number>
+             </property>
+             <item>
+              <spacer name="verticalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>95</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+              <widget class="QLabel" name="label_4">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: white;
+font: 24px &quot;Funnel Sans Light&quot;;</string>
+               </property>
+               <property name="text">
+                <string>Choose the mode</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <property name="topMargin">
+                <number>15</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QPushButton" name="flashcardsBtn">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+                 </property>
+                 <property name="text">
+                  <string>Flashcards</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="typeAnswerBtn">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+                 </property>
+                 <property name="text">
+                  <string>Type answer</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+                 </property>
+                 <property name="text">
+                  <string>Test</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editSetBtn">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>60</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>60</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+background-color: #1B1B1B;
+border-radius: 7px;
+color: white;
+font: 20px &quot;Funnel Sans Light&quot;;
+}
+
+QPushButton::hover{
+background-color: #2D2D2D;
+}
+
+QPushButton::pressed{
+background-color: #1B1B1B;
+}</string>
+               </property>
+               <property name="text">
+                <string>Edit set</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="flashcardsView">
+          <layout class="QVBoxLayout" name="verticalLayout_10">
+           <item>
+            <layout class="QVBoxLayout" name="flashcardsLayout"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="typeAnswerView">
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <layout class="QVBoxLayout" name="typeAnswerLayout"/>
            </item>
           </layout>
          </widget>
