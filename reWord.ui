@@ -323,7 +323,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -856,7 +856,29 @@ background-color: #1B1B1B;
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="setEditor"/>
+         <widget class="QWidget" name="setEditor">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="leftMargin">
+            <number>20</number>
+           </property>
+           <property name="topMargin">
+            <number>15</number>
+           </property>
+           <property name="rightMargin">
+            <number>20</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <layout class="QVBoxLayout" name="setEditorLayout">
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+            </layout>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
