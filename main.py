@@ -63,8 +63,8 @@ class reWord(QtWidgets.QMainWindow):
         regexp = QRegExp(r"[A-Za-zА-Яа-я0-9 _-]+")
         validator = QRegExpValidator(regexp)
 
-        shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+N"), self)
-        shortcut.activated.connect(self.new_set)
+        new_set_shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+N"), self)
+        new_set_shortcut.activated.connect(self.new_set)
 
         self.pages.setCurrentWidget(self.mainPage)
         self.newSetBtn.clicked.connect(lambda: (self.new_set(), self.relayout_widgets()))
