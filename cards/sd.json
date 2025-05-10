@@ -26,6 +26,101 @@
       "word": "should be",
       "translation": "first",
       "id": 5
+    },
+    {
+      "word": "et salt",
+      "translation": "a salt",
+      "id": 6
+    },
+    {
+      "word": "et egg",
+      "translation": "an egg",
+      "id": 7
+    },
+    {
+      "word": "et sukker",
+      "translation": "a sugar",
+      "id": 8
+    },
+    {
+      "word": "pepper (en)",
+      "translation": "pepper (the seasoning/powder)",
+      "id": 9
+    },
+    {
+      "word": "en te",
+      "translation": "a tea",
+      "id": 10
+    },
+    {
+      "word": "en frokost",
+      "translation": "a breakfast",
+      "id": 11
+    },
+    {
+      "word": "et salt",
+      "translation": "a salt",
+      "id": 12
+    },
+    {
+      "word": "et egg",
+      "translation": "an egg",
+      "id": 13
+    },
+    {
+      "word": "et sukker",
+      "translation": "a sugar",
+      "id": 14
+    },
+    {
+      "word": "pepper (en)",
+      "translation": "pepper (the seasoning/powder)",
+      "id": 15
+    },
+    {
+      "word": "en te",
+      "translation": "a tea",
+      "id": 16
+    },
+    {
+      "word": "en kokk",
+      "translation": "a cook",
+      "id": 17
+    },
+    {
+      "word": "en middag",
+      "translation": "a dinner",
+      "id": 18
+    },
+    {
+      "word": "en olje",
+      "translation": "an oil (food)",
+      "id": 19
+    },
+    {
+      "word": "en kniv",
+      "translation": "a knife",
+      "id": 20
+    },
+    {
+      "word": "en kokk",
+      "translation": "a cook",
+      "id": 21
+    },
+    {
+      "word": "en middag",
+      "translation": "a dinner",
+      "id": 22
+    },
+    {
+      "word": "en olje",
+      "translation": "an oil (food)",
+      "id": 23
+    },
+    {
+      "word": "en kniv",
+      "translation": "a knife",
+      "id": 24
     }
   ]
 }

@@ -105,7 +105,6 @@ class CombinedTest:
             QtWidgets.QMessageBox.warning(self.parent, "No tags", "Select at least one tag.")
             return
 
-        # собрать все слова по выбранным тегам
         words = []
         for title in Files.get_all_titles():
             data = Files.read(title)
@@ -115,5 +114,4 @@ class CombinedTest:
         if shuffle:
             random.shuffle(words)
 
-        # запустить тест — тут можно передать в test.start_combined(...)
         self.parent.start_combined_test(words)

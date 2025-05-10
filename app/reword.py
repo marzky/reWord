@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtCore import Qt, QRegExp, QTimer
 from PyQt5.QtGui import QRegExpValidator, QKeySequence, QIcon
 from core.core_utils import Core
@@ -9,7 +9,7 @@ from controllers.type_answer import TypeAnswer
 from controllers.sets import Sets
 from controllers.test import Test
 from controllers.combined_test import CombinedTest
-
+from PyQt5.QtWidgets import QShortcut
 
 class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
     def __init__(self):
@@ -60,8 +60,10 @@ class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
         self.setEditorLayout.addWidget(self.setEditorTable)
         self.setEditorTable.itemChanged.connect(self.check_for_auto_row_add)
 
+        paste_sc = QShortcut(QKeySequence.Paste, self.setEditorTable)
+        paste_sc.activated.connect(self.paste_from_clipboard)
+        
         self.editSetBtn.clicked.connect(lambda: self.open_set_editor(self.current_editing_title))
-
         
         self.flashcards = Flashcards(self)
         self.flashcardsBtn.clicked.connect(lambda: self.flashcards.start(self.current_editing_title))

@@ -225,3 +225,35 @@ class Sets():
             if card.title_lbl.text() == self.current_editing_title:
                 card.update_count(new_count)
                 break
+
+    def paste_from_clipboard(self):
+        self.setEditorTable.closePersistentEditor(self.setEditorTable.currentItem())
+        self.setEditorTable.clearFocus() 
+        cb = QtWidgets.QApplication.clipboard()
+        text = cb.text()
+        if not text:
+            return
+
+        lines = [r for r in text.strip().splitlines() if r]
+        start_row = self.setEditorTable.currentRow()
+        start_col = self.setEditorTable.currentColumn()
+        if start_row < 0: start_row = self.setEditorTable.rowCount()
+
+        for i, line in enumerate(lines):
+            cols = line.split('\t')
+            r = start_row + i
+            
+            if r >= self.setEditorTable.rowCount():
+                self.setEditorTable.insertRow(r)
+            for j, cell in enumerate(cols[:2]): 
+                c = start_col + j
+                item = QtWidgets.QTableWidgetItem(cell.strip().strip('"'))
+                self.setEditorTable.setItem(r, c, item)
+
+        self.save_table_to_file()
+
+        last_row = start_row + len(lines) - 1
+        if last_row >= self.setEditorTable.rowCount():
+            last_row = self.setEditorTable.rowCount() - 1
+        self.setEditorTable.setCurrentCell(last_row, 0)
+        self.setEditorTable.setFocus()
