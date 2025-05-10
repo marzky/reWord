@@ -1,0 +1,31 @@
+{
+  "title": "sd",
+  "tag": "General",
+  "words": [
+    {
+      "word": "Miami",
+      "translation": "Bitch",
+      "id": 1
+    },
+    {
+      "word": "Multiple words",
+      "translation": "Testing multiple words",
+      "id": 2
+    },
+    {
+      "word": "gg",
+      "translation": "gs",
+      "id": 3
+    },
+    {
+      "word": "New word",
+      "translation": "new ts",
+      "id": 4
+    },
+    {
+      "word": "should be",
+      "translation": "first",
+      "id": 5
+    }
+  ]
+}
