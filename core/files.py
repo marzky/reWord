@@ -101,3 +101,14 @@ class Files:
         
         except json.JSONDecodeError:
             print("Could not get all ID's: file corrupted or empty.")
+
+    def get_all_titles():
+        titles = []
+        folder = "cards"
+        if not os.path.exists(folder):
+            return titles
+        for file in os.listdir(folder):
+            if file.endswith(".json"):
+                title = os.path.splitext(file)[0]
+                titles.append(title)
+        return titles

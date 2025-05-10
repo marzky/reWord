@@ -95,7 +95,7 @@ font: 20px &quot;Funnel Sans&quot;;</string>
 background-color: #C41E3D;
 border-radius: 7px;
 color: white;
-font: 20px &quot;Funnel Sans Semibold&quot;;
+font: 20px &quot;Funnel Sans&quot;;
 }
 
 QPushButton::hover{
@@ -157,7 +157,7 @@ background-color: #1B1B1B;
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="newGroupBtn">
+        <widget class="QPushButton" name="combinedTestBtn">
          <property name="minimumSize">
           <size>
            <width>160</width>
@@ -323,7 +323,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>3</number>
+          <number>7</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -912,7 +912,7 @@ background-color: #1B1B1B;
                </property>
                <property name="styleSheet">
                 <string notr="true">color: white;
-font: 24px &quot;Funnel Sans Light&quot;;</string>
+font: 24px &quot;Funnel Sans&quot;;</string>
                </property>
                <property name="text">
                 <string>Choose the mode</string>
@@ -952,7 +952,7 @@ font: 24px &quot;Funnel Sans Light&quot;;</string>
 background-color: #1B1B1B;
 border-radius: 7px;
 color: white;
-font: 20px &quot;Funnel Sans Light&quot;;
+font: 20px &quot;Funnel Sans&quot;;
 }
 
 QPushButton::hover{
@@ -993,7 +993,7 @@ background-color: #1B1B1B;
 background-color: #1B1B1B;
 border-radius: 7px;
 color: white;
-font: 20px &quot;Funnel Sans Light&quot;;
+font: 20px &quot;Funnel Sans&quot;;
 }
 
 QPushButton::hover{
@@ -1010,7 +1010,7 @@ background-color: #1B1B1B;
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton">
+                <widget class="QPushButton" name="testBtn">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -1022,7 +1022,7 @@ background-color: #1B1B1B;
 background-color: #1B1B1B;
 border-radius: 7px;
 color: white;
-font: 20px &quot;Funnel Sans Light&quot;;
+font: 20px &quot;Funnel Sans&quot;;
 }
 
 QPushButton::hover{
@@ -1103,6 +1103,24 @@ background-color: #1B1B1B;
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
             <layout class="QVBoxLayout" name="typeAnswerLayout"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="testView">
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <layout class="QVBoxLayout" name="testLayout"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="combinedTestMenu">
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <item>
+            <layout class="QVBoxLayout" name="combinedTestLayout">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+            </layout>
            </item>
           </layout>
          </widget>

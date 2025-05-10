@@ -1,7 +1,8 @@
 import random
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from core.files import Files
+
 
 class Flashcards():
     def __init__(self, parent):
@@ -55,7 +56,20 @@ class Flashcards():
         btn_show = QtWidgets.QPushButton("Hide answer" if self.shown else "Show answer")
         btn_show.clicked.connect(self.flip)
         btn_show.setFixedHeight(40)
-        btn_show.setStyleSheet("background-color: #1B1B1B; color: white; border-radius: 7px;")
+        btn_show.setStyleSheet("""QPushButton{
+                    background-color: #1B1B1B;
+                    border-radius: 7px;
+                    color: white;
+                    font: 20px "Funnel Sans";
+                    }
+
+                    QPushButton::hover{
+                    background-color: #2D2D2D;
+                    }
+
+                    QPushButton::pressed{
+                    background-color: #1B1B1B;
+                    }""")
         layout.addWidget(btn_show)
 
         nav = QtWidgets.QHBoxLayout()
@@ -63,10 +77,25 @@ class Flashcards():
         btn_next = QtWidgets.QPushButton("Next word")
         for btn, action in [(btn_prev, self.prev), (btn_next, self.next)]:
             btn.setFixedHeight(40)
-            btn.setStyleSheet("background-color: #1B1B1B; color: white; border-radius: 7px;")
+            btn.setStyleSheet("""QPushButton{
+                    background-color: #1B1B1B;
+                    border-radius: 7px;
+                    color: white;
+                    font: 20px "Funnel Sans";
+                    }
+
+                    QPushButton::hover{
+                    background-color: #2D2D2D;
+                    }
+
+                    QPushButton::pressed{
+                    background-color: #1B1B1B;
+                    }""")
             btn.clicked.connect(action)
             nav.addWidget(btn)
         layout.addLayout(nav)
+
+        QTimer.singleShot(0, self.parent.setFocus)
 
     def flip(self):
         self.shown = not self.shown

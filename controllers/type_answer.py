@@ -65,7 +65,20 @@ class TypeAnswer():
         layout.addWidget(self.answer_input)
 
         self.check_btn = QtWidgets.QPushButton("Check")
-        self.check_btn.setStyleSheet("font: 20px 'Funnel Sans Light'; background-color: #1B1B1B; color: white; border-radius: 7px;")
+        self.check_btn.setStyleSheet("""QPushButton{
+                    background-color: #1B1B1B;
+                    border-radius: 7px;
+                    color: white;
+                    font: 20px "Funnel Sans";
+                    }
+
+                    QPushButton::hover{
+                    background-color: #2D2D2D;
+                    }
+
+                    QPushButton::pressed{
+                    background-color: #1B1B1B;
+                    }""")
         self.check_btn.setFixedHeight(40)
         self.check_btn.clicked.connect(self.check)
         layout.addWidget(self.check_btn)

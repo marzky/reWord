@@ -7,6 +7,8 @@ from core.files import Files
 from controllers.flashcards import Flashcards
 from controllers.type_answer import TypeAnswer
 from controllers.sets import Sets
+from controllers.test import Test
+from controllers.combined_test import CombinedTest
 
 
 class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
@@ -68,7 +70,16 @@ class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
         self.typeAnswer = TypeAnswer(self)
         self.typeAnswerBtn.clicked.connect(lambda: self.typeAnswer.start(self.current_editing_title))
 
+        self.test = Test(self)
+        self.testBtn.clicked.connect(lambda: self.test.start(self.current_editing_title))
+
+        self.combinedTest = CombinedTest(self)
+        self.combinedTestBtn.clicked.connect(lambda: self.pages.setCurrentWidget(self.combinedTestMenu))
+
         QTimer.singleShot(0, self.filtering_widgets)
+
+    def start_combined_test(self, words):
+        self.test.start_with_words(words)
 
     def open_wt_menu(self, title: str):
         self.current_editing_title = title
