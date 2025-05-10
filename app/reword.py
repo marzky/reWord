@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QRegExp, QTimer
-from PyQt5.QtGui import QRegExpValidator, QKeySequence
+from PyQt5.QtGui import QRegExpValidator, QKeySequence, QIcon
 from core.core_utils import Core
 from controllers.layout_and_filters import LayoutFilter
 from core.files import Files
@@ -14,6 +14,7 @@ class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
         super().__init__()
         uic.loadUi("ui/reWord.ui", self)
         self.setWindowTitle("reWord")
+        self.setWindowIcon(QIcon("ui/icons/rewordlogo.png"))
         hwnd = int(self.winId())
         Core.set_title_bar_color(hwnd)
 
