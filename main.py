@@ -14,157 +14,18 @@ DWMWA_CAPTION_COLOR = 35
 WM_SYSCOMMAND = 0x0112
 SC_MINIMIZE = 0xF020
 
-def set_title_bar_color(hwnd, color):
-    color = wintypes.DWORD(color)
-    hwnd = wintypes.HWND(hwnd)
-    dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ctypes.byref(color), ctypes.sizeof(color))
 
-class CleanNavigationDelegate(QStyledItemDelegate):
-    def initStyleOption(self, option, index):
-        super().initStyleOption(option, index)
-        option.state &= ~QStyle.State_HasFocus
+# не нужен как класс, позже в core_utils.py
+class Core():
 
-    def eventFilter(self, editor, event):
-        if event.type() == QtCore.QEvent.KeyPress and event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            table = editor.parent().parent()
-            row = table.currentRow()
-            col = table.currentColumn()
+    def set_title_bar_color(hwnd, color):
+        color = wintypes.DWORD(color)
+        hwnd = wintypes.HWND(hwnd)
+        dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ctypes.byref(color), ctypes.sizeof(color))
 
-            if col == 0:
-                QtCore.QTimer.singleShot(0, lambda: table.setCurrentCell(row, 1))
-                QtCore.QTimer.singleShot(0, lambda: table.editItem(table.item(row, 1)))
-            else:
-                next_row = row + 1
-                if next_row < table.rowCount():
-                    QtCore.QTimer.singleShot(0, lambda: table.setCurrentCell(next_row, 0))
-                    QtCore.QTimer.singleShot(0, lambda: table.editItem(table.item(next_row, 0)))
-
-            return True
-
-        return super().eventFilter(editor, event)
-
-class reWord(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        uic.loadUi("reWord.ui", self)
-        self.setWindowTitle("reWord")
-        hwnd = int(self.winId())
-        set_title_bar_color(hwnd, 0x00050505)
-
-        # Cards parameters
-        self.widget_width = 185
-        self.widget_height = 185
-        self.widgets = []
-
-        self.load_all_sets()
-
-        self.filtering_mode = 'Date' # 'date', 'title', 'tag', 'group'
-        self.sort_order = 'asc' # 'asc', 'desc'
-
-        regexp = QRegExp(r"[A-Za-zА-Яа-я0-9 _-]+")
-        validator = QRegExpValidator(regexp)
-
-        new_set_shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+N"), self)
-        new_set_shortcut.activated.connect(self.new_set)
-
-        self.pages.setCurrentWidget(self.mainPage)
-        self.newSetBtn.clicked.connect(lambda: (self.new_set(), self.relayout_widgets()))
-        self.cancelBtn.clicked.connect(lambda: self.pages.setCurrentWidget(self.mainPage))
-        self.mainPageBtn.clicked.connect(lambda: (self.pages.setCurrentWidget(self.mainPage), self.filtering_widgets()))
-
-        self.newSetEdit.setValidator(validator)
-        self.tagEdit.setValidator(validator)
-        self.newSetEdit.returnPressed.connect(lambda: self.tagEdit.setFocus())
-        self.tagEdit.returnPressed.connect(self.createSetBtn.click)
-        self.createSetBtn.clicked.connect(self.create_set)
-
-        self.filter_modes = ['Date', 'Title', 'Tag', 'Group']
-        self.filterBox.addItems(self.filter_modes)
-        self.filterBox.currentIndexChanged[int].connect(self.on_filter_changed)
-        self.ascBtn.clicked.connect(lambda: self.on_sort_order_changed("asc"))
-        self.descBtn.clicked.connect(lambda: self.on_sort_order_changed("desc"))
-
-        self.setEditorTable = QtWidgets.QTableWidget()
-        self.setEditorTable.setColumnCount(2)
-        self.setEditorTable.setHorizontalHeaderLabels(["Word", "Translation"])
-        self.setEditorLayout.addWidget(self.setEditorTable)
-        self.setEditorTable.itemChanged.connect(self.check_for_auto_row_add)
-
-        self.editSetBtn.clicked.connect(lambda: self.open_set_editor(self.current_editing_title))
-
-        self.flashcards_words = []
-        self.fc_shown = False
-        self.flashcardsBtn.clicked.connect(self.open_flashcards)
-        self.flashcardsLayout = self.findChild(QtWidgets.QVBoxLayout, "flashcardsLayout")
-
-        self.typeAnswerBtn.clicked.connect(self.show_type)
-        self.answer_checked = False
-
-        QTimer.singleShot(0, self.filtering_widgets)
-
-    def load_all_sets(self):
-        cards_dir = os.path.join(os.getcwd(), "cards")
-        os.makedirs(cards_dir, exist_ok=True)
-
-        for path in glob.glob(os.path.join(cards_dir, "*.json")):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                title = data.get("title", "")
-                tag   = data.get("tag", "")
-    
-                if title:
-                    tag = tag or "General"
-                    word_count = len(data.get("words", []))
-                    card = WCard(title, tag, word_count=word_count, parent=self)
-                    self.widgets.append(card)
-            except Exception as e:
-                print(f"Could not load {path!r}: {e}")
-
-    def new_set(self):
-        self.newSetEdit.clear()
-        self.tagEdit.clear()
-        self.pages.setCurrentWidget(self.newSetPage)
-        self.newSetEdit.setFocus()
-
-    def on_filter_changed(self, index: int):
-        if 0 <= index < len(self.filter_modes):
-            self.filtering_mode = self.filter_modes[index]
-        self.filtering_widgets()
-
-    def on_sort_order_changed(self, order):
-        self.sort_order = order
-        self.filtering_widgets()
-
-    def create_set(self):
-        set_name = self.newSetEdit.text()
-        if not set_name:
-            self.create_warning_box("Could not create a set", "Title shouldn't be empty.")
-            return
-        tag_name = self.tagEdit.text()
-        if not tag_name:
-            tag_name = "General"
-
-        if not Files.exists(set_name):
-            Files.create(f"{set_name}")
-            data = {
-                "title": set_name,
-                "tag": tag_name,
-                "words": []
-                }
-            Files.record(set_name, data)
-
-            # Maximum size = 30 chars
-            w = WCard(set_name, tag_name, parent=self)
-            self.widgets.insert(0, w)
-            self.pages.setCurrentWidget(self.mainPage)
-            self.relayout_widgets()
-        else:
-            self.create_warning_box("Could not create a set", "Set title is already in Cards directory. Please, change the title.")
-            return
-
-    def create_warning_box(self, title, desc):
-        box = QtWidgets.QMessageBox(self)
+    @staticmethod
+    def create_warning_box(title, desc):
+        box = QtWidgets.QMessageBox()
         box.setWindowTitle(title)
         box.setText(desc)
         box.setIcon(QtWidgets.QMessageBox.Warning)
@@ -191,96 +52,71 @@ class reWord(QtWidgets.QMainWindow):
         """)
         box.exec_()
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.relayout_widgets()
 
-    def filtering_widgets(self):
-        if self.filtering_mode == 'Title':
-            self.widgets.sort(
-                key=lambda w: w.title_lbl.text().lower(),
-                reverse=(self.sort_order == 'desc')
-            )
-        elif self.filtering_mode == 'Date':
-            self.widgets.sort(
-                key=lambda w: Files.last_modified(w.title_lbl.text()),
-                reverse=(self.sort_order == 'asc')  
-            )
-        elif self.filtering_mode == 'Tag':
-            self.widgets.sort(
-                key=lambda w: w.tag_lbl.text().lower(),
-                reverse=(self.sort_order == 'desc')
-            )
-        else:
-            print("Not implemented")
 
-        self.relayout_widgets()
-        
-    def relayout_widgets(self):
-        while self.mainPageGrid.count():
-            item = self.mainPageGrid.takeAt(0)
-            if w := item.widget():
-                self.mainPageGrid.removeWidget(w)
+class CleanNavigationDelegate(QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        option.state &= ~QStyle.State_HasFocus
 
-        self.mainPageGrid.setContentsMargins(0,0,0,0)
-        self.mainPageGrid.setHorizontalSpacing(10)
-        self.mainPageGrid.setVerticalSpacing(10)
+    def eventFilter(self, editor, event):
+        if event.type() == QtCore.QEvent.KeyPress and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            table = editor.parent().parent()
+            row = table.currentRow()
+            col = table.currentColumn()
 
-        margins = self.mainPageGrid.contentsMargins()
-        spacing = self.mainPageGrid.horizontalSpacing()
-        avail_w = self.scrollArea.viewport().width() - (margins.left() + margins.right())
-        unit = self.widget_width + spacing
-        columns = max(1, (avail_w + spacing) // unit)
+            if col == 0:
+                QtCore.QTimer.singleShot(0, lambda: table.setCurrentCell(row, 1))
+                QtCore.QTimer.singleShot(0, lambda: table.editItem(table.item(row, 1)))
+            else:
+                next_row = row + 1
+                if next_row < table.rowCount():
+                    QtCore.QTimer.singleShot(0, lambda: table.setCurrentCell(next_row, 0))
+                    QtCore.QTimer.singleShot(0, lambda: table.editItem(table.item(next_row, 0)))
 
-        for idx, w in enumerate(self.widgets):
-            row, col = divmod(idx, columns)
-            self.mainPageGrid.addWidget(w, row, col, alignment=Qt.AlignTop|Qt.AlignLeft)
+            return True
 
-        rows = (len(self.widgets)-1) // columns
-        for c in range(columns+1):
-            self.mainPageGrid.setColumnStretch(c, 0)
-        for r in range(rows+2):
-            self.mainPageGrid.setRowStretch(r, 0)
-        self.mainPageGrid.setColumnStretch(columns, 1)
-        self.mainPageGrid.setRowStretch(rows+1, 1)
+        return super().eventFilter(editor, event)
+    
+    
 
-    def remove_card(self, card_widget):
-        box = QtWidgets.QMessageBox(self)
-        box.setWindowTitle("Delete the card?")
-        box.setText(f"Do you really want to delete the card '{card_widget.title_lbl.text()}'?\nAll the information about the card and .json file will be deleted too.")
-        box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
-        box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-        box.setStyleSheet("""
-            QMessageBox {
-                background-color: #111;
-                border: none;
-            }
-            QLabel {
-                color: white;
-                font-size: 14px;
-            }
-            QPushButton {
-                background-color: #222;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background-color: #FF2C55;
-                color: black;
-            }
-        """)
-        answer = box.exec_()
-        if answer == QtWidgets.QMessageBox.Yes:
-            self.widgets.remove(card_widget)
-            card_widget.setParent(None)
+class Sets():
+    # New set page opener
+    def new_set(self):
+        self.newSetEdit.clear()
+        self.tagEdit.clear()
+        self.pages.setCurrentWidget(self.newSetPage)
+        self.newSetEdit.setFocus()
+
+    # New set creation process 
+    def create_set(self):
+        set_name = self.newSetEdit.text()
+        if not set_name:
+            Core.create_warning_box("Could not create a set", "Title shouldn't be empty.")
+            return
+        tag_name = self.tagEdit.text()
+        if not tag_name:
+            tag_name = "General"
+
+        if not Files.exists(set_name):
+            Files.create(f"{set_name}")
+            data = {
+                "title": set_name,
+                "tag": tag_name,
+                "words": []
+                }
+            Files.record(set_name, data)
+
+            # Maximum size = 30 chars
+            w = WCard(set_name, tag_name, parent=self)
+            self.widgets.insert(0, w)
+            self.pages.setCurrentWidget(self.mainPage)
             self.relayout_widgets()
-            Files.delete(card_widget.title_lbl.text())
-
-    def open_wt_menu(self, title: str):
-        self.current_editing_title = title
-        self.pages.setCurrentWidget(self.wtView)
-
+        else:
+            Core.create_warning_box("Could not create a set", "Set title is already in Cards directory. Please, change the title.")
+            return
+    
+    # Set editor opener
     def open_set_editor(self, title: str):
         self.current_editing_title = title
         self.pages.setCurrentWidget(self.setEditor)
@@ -394,6 +230,27 @@ class reWord(QtWidgets.QMainWindow):
             self.setEditorTable.setCurrentCell(last_row, 0)
             self.setEditorTable.editItem(self.setEditorTable.item(last_row, 0))
 
+    # Loading sets from cards directory
+    def load_all_sets(self):
+        cards_dir = os.path.join(os.getcwd(), "cards")
+        os.makedirs(cards_dir, exist_ok=True)
+
+        for path in glob.glob(os.path.join(cards_dir, "*.json")):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                title = data.get("title", "")
+                tag   = data.get("tag", "")
+    
+                if title:
+                    tag = tag or "General"
+                    word_count = len(data.get("words", []))
+                    card = WCard(title, tag, word_count=word_count, parent=self)
+                    self.widgets.append(card)
+            except Exception as e:
+                print(f"Could not load {path!r}: {e}")
+
+    
     def _add_editor_row(self, word: str, translation: str):
         row = self.setEditorTable.rowCount()
         self.setEditorTable.insertRow(row)
@@ -444,229 +301,222 @@ class reWord(QtWidgets.QMainWindow):
                 break
 
 
-    """ FLASHCARDS """
+class LayoutFilter():
 
-    def open_flashcards(self):
-        if not getattr(self, "current_editing_title", None):
-            return
-        data = Files.read(self.current_editing_title)
-        self.flashcards_words = data.get("words", []).copy()
-        random.shuffle(self.flashcards_words)
-        self.fc_index = 0
-        self.fc_shown = False
-
-        self.pages.setCurrentWidget(self.flashcardsView)
-        self.show_flashcard()
-
-    def _delete_layout_recursively(self, layout):
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
-            elif child.layout():
-                self._delete_layout_recursively(child.layout())
-
-    def show_flashcard(self):
-        while self.flashcardsLayout.count():
-            item = self.flashcardsLayout.takeAt(0)
-            widget = item.widget()
-            layout = item.layout()
-            if widget is not None:
-                widget.deleteLater()
-            elif layout is not None:
-                self._delete_layout_recursively(layout)
-
-        if not self.flashcards_words:
-            return
-
-        word_dict = self.flashcards_words[self.fc_index]
-        text = word_dict["translation"] if self.fc_shown else word_dict["word"]
-
-        word_counter = f"{self.fc_index + 1} / {len(Files.read(self.current_editing_title).get('words', []))}"
-        word_counter_lbl = QtWidgets.QLabel(word_counter, alignment=Qt.AlignHCenter | Qt.AlignTop)
-        word_counter_lbl.setStyleSheet("font: 20px 'Funnel Sans Light'; color: white;")
-        self.flashcardsLayout.addWidget(word_counter_lbl)
-        
-        self.flashcardsLayout.addStretch()
-
-        text_lbl = QtWidgets.QLabel(text, alignment=Qt.AlignCenter)
-        text_lbl.setWordWrap(True)
-        text_lbl.setStyleSheet("font-size: 24px; color: white;")
-        self.flashcardsLayout.addWidget(text_lbl)
-        
-        self.flashcardsLayout.addStretch()
-
-        btn_show = QtWidgets.QPushButton("Hide answer" if self.fc_shown else "Show answer")
-        btn_show.clicked.connect(self.flip_flashcard)
-        btn_show.setStyleSheet("""QPushButton{
-                                background-color: #1B1B1B;
-                                border-radius: 7px;
-                                color: white;
-                                font: 20px "Funnel Sans Light";
-                                }
-
-                                QPushButton::hover{
-                                background-color: #2D2D2D;
-                                }
-
-                                QPushButton::pressed{
-                                background-color: #1B1B1B;
-                                }""")
-        btn_show.setFixedHeight(40)
-        self.flashcardsLayout.addWidget(btn_show)
-
-        nav = QtWidgets.QHBoxLayout()
-        btn_prev = QtWidgets.QPushButton("Previous word")
-        btn_prev.setStyleSheet("""QPushButton{
-                                background-color: #1B1B1B;
-                                border-radius: 7px;
-                                color: white;
-                                font: 20px "Funnel Sans Light";
-                                }
-
-                                QPushButton::hover{
-                                background-color: #2D2D2D;
-                                }
-
-                                QPushButton::pressed{
-                                background-color: #1B1B1B;
-                                }""")
-        btn_prev.setFixedHeight(40)
-        btn_next = QtWidgets.QPushButton("Next word")
-        btn_next.setStyleSheet("""QPushButton{
-                                background-color: #1B1B1B;
-                                border-radius: 7px;
-                                color: white;
-                                font: 20px "Funnel Sans Light";
-                                }
-
-                                QPushButton::hover{
-                                background-color: #2D2D2D;
-                                }
-
-                                QPushButton::pressed{
-                                background-color: #1B1B1B;
-                                }""")
-        btn_next.setFixedHeight(40)
-        btn_prev.clicked.connect(self.prev_flashcard)
-        btn_next.clicked.connect(self.next_flashcard)
-        nav.addWidget(btn_prev)
-        nav.addWidget(btn_next)
-        self.flashcardsLayout.addLayout(nav)
-
-    def flip_flashcard(self):
-        self.fc_shown = not self.fc_shown
-        self.show_flashcard()
-
-    def next_flashcard(self):
-        if self.fc_index + 1 < len(self.flashcards_words):
-            self.fc_index += 1
-            self.fc_shown = False
-            self.show_flashcard()
-
-    def prev_flashcard(self):
-        if self.fc_index > 0:
-            self.fc_index -= 1
-            self.fc_shown = False
-            self.show_flashcard()
-
-    def keyPressEvent(self, event):
-        if self.pages.currentWidget() == self.flashcardsView:
-            if event.key() == Qt.Key_Space:
-                self.flip_flashcard()
-            elif event.key() == Qt.Key_Right:
-                self.next_flashcard()
-            elif event.key() == Qt.Key_Left:
-                self.prev_flashcard()
-            elif event.key() == Qt.Key_Escape:
-                self.pages.setCurrentWidget(self.mainPage)
-            event.accept()
-
-        elif self.pages.currentWidget() == self.typeAnswerView:
-            if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-                if self.answer_checked:
-                    self._next_type_card()
-                else:
-                    self.check_type_answer()
-                event.accept()
-            else:
-                super().keyPressEvent(event)
-
+    def filtering_widgets(self):
+        if self.filtering_mode == 'Title':
+            self.widgets.sort(
+                key=lambda w: w.title_lbl.text().lower(),
+                reverse=(self.sort_order == 'desc')
+            )
+        elif self.filtering_mode == 'Date':
+            self.widgets.sort(
+                key=lambda w: Files.last_modified(w.title_lbl.text()),
+                reverse=(self.sort_order == 'asc')  
+            )
+        elif self.filtering_mode == 'Tag':
+            self.widgets.sort(
+                key=lambda w: w.tag_lbl.text().lower(),
+                reverse=(self.sort_order == 'desc')
+            )
         else:
-            if event.key() == Qt.Key_Escape:
-                self.pages.setCurrentWidget(self.mainPage)
-            else:
-                super().keyPressEvent(event)
+            print("Not implemented")
 
-    
-    """ TYPE ANSWER """
+        self.relayout_widgets()
+        
+    def relayout_widgets(self):
+        while self.mainPageGrid.count():
+            item = self.mainPageGrid.takeAt(0)
+            if w := item.widget():
+                self.mainPageGrid.removeWidget(w)
 
-    def show_type(self):
-        if not getattr(self, "current_editing_title", None):
+        self.mainPageGrid.setContentsMargins(0,0,0,0)
+        self.mainPageGrid.setHorizontalSpacing(10)
+        self.mainPageGrid.setVerticalSpacing(10)
+
+        margins = self.mainPageGrid.contentsMargins()
+        spacing = self.mainPageGrid.horizontalSpacing()
+        avail_w = self.scrollArea.viewport().width() - (margins.left() + margins.right())
+        unit = self.widget_width + spacing
+        columns = max(1, (avail_w + spacing) // unit)
+
+        for idx, w in enumerate(self.widgets):
+            row, col = divmod(idx, columns)
+            self.mainPageGrid.addWidget(w, row, col, alignment=Qt.AlignTop|Qt.AlignLeft)
+
+        rows = (len(self.widgets)-1) // columns
+        for c in range(columns+1):
+            self.mainPageGrid.setColumnStretch(c, 0)
+        for r in range(rows+2):
+            self.mainPageGrid.setRowStretch(r, 0)
+        self.mainPageGrid.setColumnStretch(columns, 1)
+        self.mainPageGrid.setRowStretch(rows+1, 1)
+
+    def on_filter_changed(self, index: int):
+        if 0 <= index < len(self.filter_modes):
+            self.filtering_mode = self.filter_modes[index]
+        self.filtering_widgets()
+
+    def on_sort_order_changed(self, order):
+        self.sort_order = order
+        self.filtering_widgets()
+
+
+
+class Flashcards():
+    def __init__(self, parent):
+        self.parent = parent
+        self.flashcardsLayout = parent.findChild(QtWidgets.QVBoxLayout, "flashcardsLayout")
+        self.current_editing_title = None
+        self.words = []
+        self.index = 0
+        self.shown = False
+
+    def start(self, title):
+        self.current_editing_title = title
+        data = Files.read(title)
+        self.words = data.get("words", []).copy()
+        if not self.words:
             return
-        data = Files.read(self.current_editing_title)
+        random.shuffle(self.words)
+        self.index = 0
+        self.shown = False
+        self.parent.pages.setCurrentWidget(self.parent.flashcardsView)
+        self.show()
 
-        self.type_words = data.get("words", []).copy()
-        random.shuffle(self.type_words)
-        self.type_index = 0
-
-        self.pages.setCurrentWidget(self.typeAnswerView)
-        self.show_type_card()
-
-    def show_type_card(self):
-
-        while self.typeAnswerLayout.count():
-            item = self.typeAnswerLayout.takeAt(0)
+    def show(self):
+        layout = self.flashcardsLayout
+        while layout.count():
+            item = layout.takeAt(0)
             w = item.widget() or item.layout()
             if w:
                 w.setParent(None)
 
-        if not self.type_words or self.type_index >= len(self.type_words):
-            random.shuffle(self.type_words)
-            self.type_index = 0
-            
-        
+        if not self.words:
+            return
 
-        word = self.type_words[self.type_index]["word"]
-        correct_translation = self.type_words[self.type_index]["translation"]
+        word = self.words[self.index]["word"]
+        translation = self.words[self.index]["translation"]
+        text = translation if self.shown else word
 
-        word_counter = f"{self.type_index + 1} / {len(Files.read(self.current_editing_title).get('words', []))}"
-        word_counter_lbl = QtWidgets.QLabel(word_counter, alignment=Qt.AlignHCenter | Qt.AlignTop)
-        word_counter_lbl.setStyleSheet("font: 20px 'Funnel Sans Light'; color: white;")
-        self.typeAnswerLayout.addWidget(word_counter_lbl)
-        
-        self.typeAnswerLayout.addStretch()
+        count_lbl = QtWidgets.QLabel(f"{self.index + 1} / {len(self.words)}", alignment=Qt.AlignHCenter | Qt.AlignTop)
+        count_lbl.setStyleSheet("font: 20px 'Funnel Sans Light'; color: white;")
+        layout.addWidget(count_lbl)
+
+        layout.addStretch()
+
+        word_lbl = QtWidgets.QLabel(text, alignment=Qt.AlignCenter)
+        word_lbl.setStyleSheet("font-size: 24px; color: white;")
+        word_lbl.setWordWrap(True)
+        layout.addWidget(word_lbl)
+
+        layout.addStretch()
+
+        btn_show = QtWidgets.QPushButton("Hide answer" if self.shown else "Show answer")
+        btn_show.clicked.connect(self.flip)
+        btn_show.setFixedHeight(40)
+        btn_show.setStyleSheet("background-color: #1B1B1B; color: white; border-radius: 7px;")
+        layout.addWidget(btn_show)
+
+        nav = QtWidgets.QHBoxLayout()
+        btn_prev = QtWidgets.QPushButton("Previous word")
+        btn_next = QtWidgets.QPushButton("Next word")
+        for btn, action in [(btn_prev, self.prev), (btn_next, self.next)]:
+            btn.setFixedHeight(40)
+            btn.setStyleSheet("background-color: #1B1B1B; color: white; border-radius: 7px;")
+            btn.clicked.connect(action)
+            nav.addWidget(btn)
+        layout.addLayout(nav)
+
+    def flip(self):
+        self.shown = not self.shown
+        self.show()
+
+    def next(self):
+        if self.index + 1 < len(self.words):
+            self.index += 1
+            self.shown = False
+            self.show()
+
+    def prev(self):
+        if self.index > 0:
+            self.index -= 1
+            self.shown = False
+            self.show()
+
+
+
+class TypeAnswer():
+    def __init__(self, parent):
+        self.parent = parent
+        self.layout = parent.findChild(QtWidgets.QVBoxLayout, "typeAnswerLayout")
+        self.title = None
+        self.words = []
+        self.index = 0
+        self.checked = False
+
+    def start(self, title):
+        self.title = title
+        data = Files.read(title)
+        self.words = data.get("words", []).copy()
+        if not self.words:
+            return
+        random.shuffle(self.words)
+        self.index = 0
+        self.checked = False
+        self.parent.pages.setCurrentWidget(self.parent.typeAnswerView)
+        self.show()
+
+    def show(self):
+        layout = self.layout
+        while layout.count():
+            item = layout.takeAt(0)
+            w = item.widget() or item.layout()
+            if w:
+                w.setParent(None)
+
+        if self.index >= len(self.words):
+            random.shuffle(self.words)
+            self.index = 0
+
+        word = self.words[self.index]["word"]
+        correct = self.words[self.index]["translation"]
+
+        count_lbl = QtWidgets.QLabel(f"{self.index + 1} / {len(self.words)}", alignment=Qt.AlignHCenter | Qt.AlignTop)
+        count_lbl.setStyleSheet("font: 20px 'Funnel Sans Light'; color: white;")
+        layout.addWidget(count_lbl)
+
+        layout.addStretch()
 
         word_lbl = QtWidgets.QLabel(word, alignment=Qt.AlignCenter)
         word_lbl.setStyleSheet("font-size: 24px; color: white;")
-        self.typeAnswerLayout.addWidget(word_lbl)
+        layout.addWidget(word_lbl)
 
-        self.typeAnswerLayout.addStretch()
+        layout.addStretch()
 
         self.result_lbl = QtWidgets.QLabel("", alignment=Qt.AlignCenter)
         self.result_lbl.setStyleSheet("font-size: 18px; color: #888;")
-        self.typeAnswerLayout.addWidget(self.result_lbl)
+        layout.addWidget(self.result_lbl)
 
         self.answer_input = QtWidgets.QLineEdit()
         self.answer_input.setPlaceholderText("Enter translation")
         self.answer_input.setStyleSheet("font: 20px 'Funnel Sans Light'; color: white; background-color: #1B1B1B; padding: 8px; border-radius: 7px;")
-        self.typeAnswerLayout.addWidget(self.answer_input)
         self.answer_input.setEnabled(True)
-        self.answer_input.setFocus()
+        QTimer.singleShot(0, self.answer_input.setFocus)
+        layout.addWidget(self.answer_input)
 
         self.check_btn = QtWidgets.QPushButton("Check")
         self.check_btn.setStyleSheet("font: 20px 'Funnel Sans Light'; background-color: #1B1B1B; color: white; border-radius: 7px;")
         self.check_btn.setFixedHeight(40)
-        self.check_btn.clicked.connect(self.check_type_answer)
-        self.typeAnswerLayout.addWidget(self.check_btn)
+        self.check_btn.clicked.connect(self.check)
+        layout.addWidget(self.check_btn)
 
-        
-    def check_type_answer(self):
-        if self.answer_checked:
-            return 
-        
+    def check(self):
+        if self.checked:
+            return
+
         user_input = self.answer_input.text().strip().lower()
-        correct = self.type_words[self.type_index]["translation"].strip().lower()
+        correct = self.words[self.index]["translation"].strip().lower()
 
         ratio = SequenceMatcher(None, user_input, correct).ratio()
         percent = round(ratio * 100)
@@ -680,17 +530,155 @@ class reWord(QtWidgets.QMainWindow):
 
         self.check_btn.setText("Next card")
         self.check_btn.clicked.disconnect()
-        self.check_btn.clicked.connect(self._next_type_card)
+        self.check_btn.clicked.connect(self.next)
 
         self.answer_input.setDisabled(True)
-        self.answer_checked = True
+        self.checked = True
+
+    def next(self):
+        self.index += 1
+        self.checked = False
+        self.show()
 
 
-    def _next_type_card(self):
-        self.type_index += 1
-        self.answer_checked = False
-        self.show_type_card()    
 
+class LearningModes():
+    #later for init?
+    def open_wt_menu(self, title: str):
+        self.current_editing_title = title
+        self.pages.setCurrentWidget(self.modeChoosingPage)
+
+
+
+class reWord(QtWidgets.QMainWindow, Sets, LearningModes, LayoutFilter):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("reWord.ui", self)
+        self.setWindowTitle("reWord")
+        hwnd = int(self.winId())
+        Core.set_title_bar_color(hwnd, 0x00050505)
+
+        # Cards parameters
+        self.widget_width = 185
+        self.widget_height = 185
+        self.widgets = []
+
+        # Initial set loading from Cards directory
+        self.load_all_sets()
+
+        self.filtering_mode = 'Date' # 'date', 'title', 'tag', 'group'
+        self.sort_order = 'asc' # 'asc', 'desc'
+
+        regexp = QRegExp(r"[A-Za-zА-Яа-я0-9 _-]+")
+        validator = QRegExpValidator(regexp)
+
+        new_set_shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+N"), self)
+        new_set_shortcut.activated.connect(lambda: self.new_set(self))
+
+        self.pages.setCurrentWidget(self.mainPage)
+        self.newSetBtn.clicked.connect(lambda: (Sets.new_set(self), self.relayout_widgets()))
+        self.cancelBtn.clicked.connect(lambda: self.pages.setCurrentWidget(self.mainPage))
+        self.mainPageBtn.clicked.connect(lambda: (self.pages.setCurrentWidget(self.mainPage), self.filtering_widgets()))
+
+        self.newSetEdit.setValidator(validator)
+        self.tagEdit.setValidator(validator)
+        self.newSetEdit.returnPressed.connect(lambda: self.tagEdit.setFocus())
+        self.tagEdit.returnPressed.connect(self.createSetBtn.click)
+        self.createSetBtn.clicked.connect(self.create_set)
+
+        self.filter_modes = ['Date', 'Title', 'Tag', 'Group']
+        self.filterBox.addItems(self.filter_modes)
+        self.filterBox.currentIndexChanged[int].connect(self.on_filter_changed)
+        self.ascBtn.clicked.connect(lambda: self.on_sort_order_changed("asc"))
+        self.descBtn.clicked.connect(lambda: self.on_sort_order_changed("desc"))
+
+        self.setEditorTable = QtWidgets.QTableWidget()
+        self.setEditorTable.setColumnCount(2)
+        self.setEditorTable.setHorizontalHeaderLabels(["Word", "Translation"])
+        self.setEditorLayout.addWidget(self.setEditorTable)
+        self.setEditorTable.itemChanged.connect(self.check_for_auto_row_add)
+
+        self.editSetBtn.clicked.connect(lambda: self.open_set_editor(self.current_editing_title))
+
+        
+        self.flashcards = Flashcards(self)
+        self.flashcardsBtn.clicked.connect(lambda: self.flashcards.start(self.current_editing_title))
+        self.flashcardsLayout = self.findChild(QtWidgets.QVBoxLayout, "flashcardsLayout")
+
+        self.typeAnswer = TypeAnswer(self)
+        self.typeAnswerBtn.clicked.connect(lambda: self.typeAnswer.start(self.current_editing_title))
+
+        QTimer.singleShot(0, self.filtering_widgets)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.relayout_widgets()
+
+    def remove_card(self, card_widget):
+        box = QtWidgets.QMessageBox(self)
+        box.setWindowTitle("Delete the card?")
+        box.setText(f"Do you really want to delete the card '{card_widget.title_lbl.text()}'?\nAll the information about the card and .json file will be deleted too.")
+        box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
+        box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+        box.setStyleSheet("""
+            QMessageBox {
+                background-color: #111;
+                border: none;
+            }
+            QLabel {
+                color: white;
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #222;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #FF2C55;
+                color: black;
+            }
+        """)
+        answer = box.exec_()
+        if answer == QtWidgets.QMessageBox.Yes:
+            self.widgets.remove(card_widget)
+            card_widget.setParent(None)
+            self.relayout_widgets()
+            Files.delete(card_widget.title_lbl.text())
+
+    def keyPressEvent(self, event):
+        if self.pages.currentWidget() == self.flashcardsView:
+            if event.key() == Qt.Key_Space:
+                self.flashcards.flip()
+            elif event.key() == Qt.Key_Right:
+                self.flashcards.next()
+            elif event.key() == Qt.Key_Left:
+                self.flashcards.prev()
+            elif event.key() == Qt.Key_Escape:
+                self.pages.setCurrentWidget(self.mainPage)
+            event.accept()
+
+        elif self.pages.currentWidget() == self.typeAnswerView:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                if self.typeAnswer.checked:
+                    self.typeAnswer.next()
+                else:
+                    self.typeAnswer.check()
+                event.accept()
+            elif event.key() == Qt.Key_Escape:
+                self.pages.setCurrentWidget(self.mainPage)
+                event.accept()
+            else:
+                super().keyPressEvent(event)
+
+        else:
+            if event.key() == Qt.Key_Escape:
+                self.pages.setCurrentWidget(self.mainPage)
+            else:
+                super().keyPressEvent(event)
+
+     
 
 class WCard(QtWidgets.QWidget):
     def __init__(self, title: str, tag: str, word_count: int=0, parent=None):
@@ -770,6 +758,7 @@ class WCard(QtWidgets.QWidget):
         if self.owner:
             self.owner.open_wt_menu(self.title_lbl.text())
         
+
 
 class Files:
     def create(name, folder=None):
@@ -870,6 +859,7 @@ class Files:
         
         except json.JSONDecodeError:
             print("Could not get all ID's: file corrupted or empty.")
+
 
 
 if __name__ == "__main__":

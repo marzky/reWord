@@ -879,7 +879,7 @@ background-color: #1B1B1B;
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="wtView">
+         <widget class="QWidget" name="modeChoosingPage">
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
             <layout class="QVBoxLayout" name="wtViewLayout">
