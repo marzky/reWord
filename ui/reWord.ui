@@ -186,35 +186,6 @@ background-color: #1B1B1B;
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_3">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton{
-background-color: #1B1B1B;
-border-radius: 7px;
-color: white;
-font: 20px &quot;Funnel Sans Light&quot;;
-}
-
-QPushButton::hover{
-background-color: #2D2D2D;
-}
-
-QPushButton::pressed{
-background-color: #1B1B1B;
-}</string>
-         </property>
-         <property name="text">
-          <string>Games</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -229,35 +200,6 @@ background-color: #1B1B1B;
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="minimumSize">
-          <size>
-           <width>160</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton{
-background-color: #1B1B1B;
-border-radius: 7px;
-color: white;
-font: 20px &quot;Funnel Sans Light&quot;;
-}
-
-QPushButton::hover{
-background-color: #2D2D2D;
-}
-
-QPushButton::pressed{
-background-color: #1B1B1B;
-}</string>
-         </property>
-         <property name="text">
-          <string>Import</string>
-         </property>
-        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="settingsBtn">

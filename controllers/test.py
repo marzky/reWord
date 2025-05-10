@@ -28,6 +28,7 @@ class Test():
         self.title = title
         data = Files.read(title)
         words = data.get("words", [])
+        self.source_words = words
         if len(words) < 4:
             QtWidgets.QMessageBox.warning(self.parent, "Not enough data", "At least 4 words are required for the test.")
             return
