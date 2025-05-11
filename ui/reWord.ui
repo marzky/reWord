@@ -202,7 +202,7 @@ background-color: #1B1B1B;
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="settingsBtn">
+        <widget class="QPushButton" name="aboutBtn">
          <property name="minimumSize">
           <size>
            <width>160</width>
@@ -226,7 +226,7 @@ background-color: #1B1B1B;
 }</string>
          </property>
          <property name="text">
-          <string>Settings</string>
+          <string>About</string>
          </property>
         </widget>
        </item>
@@ -265,7 +265,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>7</number>
+          <number>8</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -282,35 +282,31 @@ border-bottom-left-radius: 20px;</string>
             <widget class="QScrollArea" name="scrollArea">
              <property name="styleSheet">
               <string notr="true">QScrollBar:vertical {
-    background: transparent;      /* или нужный цвет */
-    width: 12px;                  /* толщина скроллбара */
-    margin: 0px;                  /* отступы сверху/снизу */
+    background: transparent;
+    width: 12px;
+    margin: 0px;
 }
 
-/* Ползунок, которым движутся страницы */
 QScrollBar::handle:vertical {
-    background: #050505;             /* цвет ползунка */
-    min-height: 30px;             /* минимальная длина */
-    border-radius: 6px;           /* скругляем по полу ширины */
+    background: #050505;
+    min-height: 30px;
+    border-radius: 6px; 
 	border: 1.5px solid #1B1B1B;
 }
 
-/* Убираем стрелки наверху/внизу */
 QScrollBar::sub-line:vertical,
 QScrollBar::add-line:vertical {
     height: 0px;
     subcontrol-origin: margin;
-    subcontrol-position: top;     /* необязательно */
+    subcontrol-position: top; 
     background: none;
 }
 
-/* Пространство вокруг ползунка (клики) */
 QScrollBar::sub-page:vertical,
 QScrollBar::add-page:vertical {
     background: none;
 }
 
-/* Если нужен горизонтальный тоже — то аналогично */
 QScrollBar:horizontal { height:12px; }
 QScrollBar::handle:horizontal {
     background:#555; border-radius:6px; min-width:30px;
@@ -1062,6 +1058,139 @@ background-color: #1B1B1B;
              <property name="topMargin">
               <number>0</number>
              </property>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="aboutPage">
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <layout class="QVBoxLayout" name="aboutLayout">
+             <property name="spacing">
+              <number>20</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: white;
+font: 16px &quot;Funnel Sans Light&quot;;
+border: none;
+border-radius: none;</string>
+               </property>
+               <property name="text">
+                <string>This application uses PyQt5, licensed under the GNU General Public License v3 (GPLv3). Accordingly, this application is also distributed under the GPLv3.</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: white;
+font: 16px &quot;Funnel Sans Light&quot;;
+border: none;
+border-radius: none;</string>
+               </property>
+               <property name="text">
+                <string>All the word sets contained in /cards directory in the application folder as .json files each.</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_7">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: white;
+font: 16px &quot;Funnel Sans Light&quot;;
+border: none;
+border-radius: none;</string>
+               </property>
+               <property name="text">
+                <string>Github: https://github.com/marzky/reWord</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_8">
+               <property name="styleSheet">
+                <string notr="true">color: white;
+font: 16px &quot;Funnel Sans Light&quot;;
+border: none;
+border-radius: none;</string>
+               </property>
+               <property name="text">
+                <string>reWord version 1.0.0</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </item>
           </layout>

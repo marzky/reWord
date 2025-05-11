@@ -47,6 +47,7 @@ class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
         self.newSetEdit.returnPressed.connect(lambda: self.tagEdit.setFocus())
         self.tagEdit.returnPressed.connect(self.createSetBtn.click)
         self.createSetBtn.clicked.connect(self.create_set)
+        self.aboutBtn.clicked.connect(lambda: self.pages.setCurrentWidget(self.aboutPage))
 
         self.filter_modes = ['Date', 'Title', 'Tag', 'Group']
         self.filterBox.addItems(self.filter_modes)
