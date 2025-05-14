@@ -265,7 +265,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>8</number>
+          <number>7</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -323,8 +323,8 @@ QScrollBar::handle:horizontal {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>596</width>
-                <height>600</height>
+                <width>420</width>
+                <height>42</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -418,7 +418,7 @@ QScrollBar::handle:horizontal {
                     <property name="font">
                      <font>
                       <family>Funnel Sans Light</family>
-                      <pointsize>1</pointsize>
+                      <pointsize>-1</pointsize>
                       <weight>50</weight>
                       <italic>false</italic>
                       <bold>false</bold>
@@ -1054,7 +1054,7 @@ background-color: #1B1B1B;
          <widget class="QWidget" name="combinedTestMenu">
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
-            <layout class="QVBoxLayout" name="combinedTestLayout">
+            <layout class="QVBoxLayout" name="combinedTestContainerLayout">
              <property name="topMargin">
               <number>0</number>
              </property>

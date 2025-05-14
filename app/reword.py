@@ -86,9 +86,13 @@ class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
         self.testBtn.clicked.connect(lambda: self.test.start(self.current_editing_title))
 
         self.combinedTest = CombinedTest(self)
-        self.combinedTestBtn.clicked.connect(lambda: self.pages.setCurrentWidget(self.combinedTestMenu))
+        self.combinedTestBtn.clicked.connect(lambda: self.load_combined_test())
 
         QTimer.singleShot(0, self.filtering_widgets)
+
+    def load_combined_test(self):
+        self.combinedTest.refresh()
+        self.pages.setCurrentWidget(self.combinedTestMenu)
 
     def start_combined_test(self, words):
         self.test.start_with_words(words)
