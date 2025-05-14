@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/">
+    <file>ui/icons/rewordlogo.png</file>
+  </qresource>
+</RCC>

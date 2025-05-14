@@ -10,13 +10,22 @@ from controllers.sets import Sets
 from controllers.test import Test
 from controllers.combined_test import CombinedTest
 from PyQt5.QtWidgets import QShortcut
+import os, sys
+import resources_rc
 
 class reWord(QtWidgets.QMainWindow, Sets, LayoutFilter):
     def __init__(self):
         super().__init__()
-        uic.loadUi("ui/reWord.ui", self)
+        if getattr(sys, 'frozen', False):  # Запущено как .exe
+            BASE_DIR = sys._MEIPASS
+        else:
+            BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
+        UI_PATH = os.path.join(BASE_DIR, "ui", "reWord.ui")
+        uic.loadUi(UI_PATH, self)
         self.setWindowTitle("reWord")
-        self.setWindowIcon(QIcon("ui/icons/rewordlogo.png"))
+        
+        self.setWindowIcon(QIcon(":ui/icons/rewordlogo.png"))
         hwnd = int(self.winId())
         Core.set_title_bar_color(hwnd)
 

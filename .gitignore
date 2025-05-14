@@ -1,3 +1,6 @@
 testi.py
 __pycache__/
 cards/
+dist/
+build/
+reword.spec
