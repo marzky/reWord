@@ -265,7 +265,7 @@ border-bottom-left-radius: 20px;</string>
        <item>
         <widget class="QStackedWidget" name="pages">
          <property name="currentIndex">
-          <number>7</number>
+          <number>8</number>
          </property>
          <widget class="QWidget" name="mainPage">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -323,8 +323,8 @@ QScrollBar::handle:horizontal {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>420</width>
-                <height>42</height>
+                <width>596</width>
+                <height>600</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1069,6 +1069,18 @@ background-color: #1B1B1B;
              <property name="spacing">
               <number>20</number>
              </property>
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>6</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>6</number>
+             </property>
              <item>
               <widget class="QLabel" name="label_5">
                <property name="sizePolicy">
@@ -1165,7 +1177,7 @@ border: none;
 border-radius: none;</string>
                </property>
                <property name="text">
-                <string>reWord version 1.0.0</string>
+                <string>reWord version 1.0.1</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
