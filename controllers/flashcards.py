@@ -13,6 +13,22 @@ class Flashcards():
         self.index = 0
         self.shown = False
 
+    def clear_layout(self, layout=None):
+        if layout is None:
+            layout = self.flashcardsLayout
+
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            child_layout = item.layout()
+
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+            elif child_layout is not None:
+                self.clear_layout(child_layout)
+                child_layout.setParent(None)
+
     def start(self, title):
         self.current_editing_title = title
         data = Files.read(title)
@@ -27,11 +43,7 @@ class Flashcards():
 
     def show(self):
         layout = self.flashcardsLayout
-        while layout.count():
-            item = layout.takeAt(0)
-            w = item.widget() or item.layout()
-            if w:
-                w.setParent(None)
+        self.clear_layout()
 
         if not self.words:
             return
